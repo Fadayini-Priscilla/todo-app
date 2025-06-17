@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | Todo App</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        header h1 {
+            color: #2c3e50;
+            font-size: 2.2em;
+            margin: 0;
+        }
+        .user-info {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #555;
+        }
+        .logout-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+            margin-left: 15px; /* Spacing from username */
+        }
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+        .messages {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+        .messages li.success_msg {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #c3e6cb;
+        }
+        .messages li.error_msg {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #f5c6cb;
+        }
+        .add-task-form {
+            background-color: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid #e9ecef;
+        }
+        .add-task-form h3 {
+            margin-top: 0;
+            color: #495057;
+            font-size: 1.4em;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        .form-group input[type="text"]:focus,
+        .form-group textarea:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .task-filters {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            background-color: #6c757d;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+        .filter-btn:hover {
+            background-color: #5a6268;
+        }
+        .filter-btn.active {
+            background-color: #007bff;
+        }
+        .tasks-list {
+            list-style: none;
+            padding: 0;
+        }
+        .task-item {
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+        }
+        .task-item:hover {
+            transform: translateY(-3px);
+        }
+        .task-content {
+            flex-grow: 1;
+            text-align: left;
+        }
+        .task-content h4 {
+            margin: 0 0 5px 0;
+            color: #34495e;
+            font-size: 1.2em;
+        }
+        .task-content p {
+            margin: 0;
+            color: #777;
+            font-size: 0.9em;
+        }
+        .task-actions {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .task-status {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.85em;
+            font-weight: bold;
+            color: white;
+            text-transform: uppercase;
+        }
+        .status-pending { background-color: #ffc107; color: #343a40; }
+        .status-completed { background-color: #28a745; }
+        .status-deleted { background-color: #6c757d; } /* Grey for deleted */
+
+        .action-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: background-color 0.3s ease;
+        }
+        .btn-complete { background-color: #17a2b8; color: white; }
+        .btn-complete:hover { background-color: #138496; }
+        .btn-delete { background-color: #dc3545; color: white; }
+        .btn-delete:hover { background-color: #c82333; }
+        .btn-permanent-delete { background-color: #6f42c1; color: white; } /* Different color for permanent delete */
+        .btn-permanent-delete:hover { background-color: #5a32a8; }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .task-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .task-content {
+                margin-bottom: 10px;
+            }
+            .task-actions {
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+            .action-btn {
+                flex-grow: 1;
+                text-align: center;
+            }
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .user-details {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .logout-btn {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+            .task-filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Your Todo List</h1>
+            <div class="user-details">
+                <span class="user-info">Welcome, <%= user.username %>!</span>
+                <a href="/logout" class="logout-btn">Logout</a>
+            </div>
+        </header>
+
+        <% if (success_msg && success_msg.length > 0) { %>
+            <ul class="messages">
+                <li class="success_msg"><%= success_msg[0] %></li>
+            </ul>
+        <% } %>
+        <% if (error_msg && error_msg.length > 0) { %>
+            <ul class="messages">
+                <li class="error_msg"><%= error_msg[0] %></li>
+            </ul>
+        <% } %>
+
+        <div class="add-task-form">
+            <h3>Add New Task</h3>
+            <form action="/tasks" method="POST">
+                <div class="form-group">
+                    <label for="title">Task Title</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description (Optional)</label>
+                    <textarea id="description" name="description" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Add Task</button>
+            </form>
+        </div>
+
+        <div class="task-filters">
+            <span>Filter Tasks:</span>
+            <a href="/dashboard?status=all" class="filter-btn <%= filterStatus === 'all' ? 'active' : '' %>">All</a>
+            <a href="/dashboard?status=pending" class="filter-btn <%= filterStatus === 'pending' ? 'active' : '' %>">Pending</a>
+            <a href="/dashboard?status=completed" class="filter-btn <%= filterStatus === 'completed' ? 'active' : '' %>">Completed</a>
+            <a href="/dashboard?status=deleted" class="filter-btn <%= filterStatus === 'deleted' ? 'active' : '' %>">Deleted</a>
+        </div>
+
+        <h2>Your Tasks</h2>
+        <ul class="tasks-list">
+            <% if (tasks.length > 0) { %>
+                <% tasks.forEach(task => { %>
+                    <li class="task-item">
+                        <div class="task-content">
+                            <h4><%= task.title %></h4>
+                            <% if (task.description) { %>
+                                <p><%= task.description %></p>
+                            <% } %>
+                            <span class="task-status status-<%= task.status %>"><%= task.status %></span>
+                            <p style="font-size: 0.8em; color: #888; margin-top: 5px;">Created: <%= new Date(task.createdAt).toLocaleString() %></p>
+                        </div>
+                        <div class="task-actions">
+                            <% if (task.status === 'pending') { %>
+                                <form action="/tasks/update-status/<%= task._id %>?_method=POST" method="POST">
+                                    <input type="hidden" name="newStatus" value="completed">
+                                    <button type="submit" class="action-btn btn-complete">Mark Complete</button>
+                                </form>
+                            <% } %>
+                            <% if (task.status !== 'deleted') { %>
+                                <form action="/tasks/update-status/<%= task._id %>?_method=POST" method="POST">
+                                    <input type="hidden" name="newStatus" value="deleted">
+                                    <button type="submit" class="action-btn btn-delete">Move to Trash</button>
+                                </form>
+                            <% } %>
+                            <% if (task.status === 'deleted') { %>
+                                <form action="/tasks/delete/<%= task._id %>?_method=POST" method="POST" onsubmit="return confirm('Are you sure you want to permanently delete this task? This cannot be undone.');">
+                                    <button type="submit" class="action-btn btn-permanent-delete">Permanent Delete</button>
+                                </form>
+                            <% } %>
+                        </div>
+                    </li>
+                <% }); %>
+            <% } else { %>
+                <p>No tasks found for this user<%= filterStatus !== 'all' ? ` with status "${filterStatus}"` : '' %>. Add a new task above!</p>
+            <% } %>
+        </ul>
+    </div>
+</body>
+</html>
